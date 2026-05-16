@@ -2,1433 +2,1037 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>塞上法桥 · 双核普惠智法平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <title>塞上法桥 - AI对话助手</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --gold: #c9a45c;
-            --gold-light: #e8d5a3;
-            --gold-dark: #8b6914;
-            --brown: #3d2817;
-            --brown-light: #5c3d2a;
-            --dark: #1a120b;
-            --dark-lighter: #2a1f14;
-            --cream: #f5f0e8;
-            --white: #ffffff;
-            --gray: #8a8a8a;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background: var(--dark);
-            color: var(--white);
-            overflow-x: hidden;
-        }
-
-        /* ===== LOADING SCREEN ===== */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--dark);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            transition: opacity 1s ease, visibility 1s ease;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loading-logo {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: 0.3em;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-        }
-
-        .loading-sub {
-            font-size: 1rem;
-            color: var(--gray);
-            margin-top: 1rem;
-            letter-spacing: 0.2em;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.5s forwards;
-        }
-
-        .loading-bar {
-            width: 200px;
-            height: 2px;
-            background: rgba(201, 164, 92, 0.2);
-            margin-top: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .loading-bar::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 0%;
-            height: 100%;
-            background: var(--gold);
-            animation: loadProgress 2s ease forwards;
-        }
-
-        @keyframes loadProgress {
-            to { width: 100%; }
-        }
-
-        /* ===== NAVIGATION ===== */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 1.5rem 3rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.5s ease;
-        }
-
-        .nav.scrolled {
-            background: rgba(26, 18, 11, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 1rem 3rem;
-        }
-
-        .nav-logo {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gold);
-            text-decoration: none;
-            letter-spacing: 0.15em;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2.5rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--white);
-            text-decoration: none;
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--gold);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--gold);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* ===== HERO SECTION ===== */
-        .hero {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 50%, rgba(201, 164, 92, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 50%, rgba(139, 105, 20, 0.1) 0%, transparent 50%),
-                linear-gradient(180deg, var(--dark) 0%, var(--brown) 100%);
-        }
-
-        .hero-particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--gold);
-            border-radius: 50%;
-            opacity: 0;
-            animation: particleFloat 15s infinite;
-        }
-
-        @keyframes particleFloat {
-            0% { opacity: 0; transform: translateY(100vh) scale(0); }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { opacity: 0; transform: translateY(-10vh) scale(1.5); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 900px;
-            padding: 0 2rem;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            padding: 0.5rem 1.5rem;
-            border: 1px solid rgba(201, 164, 92, 0.4);
-            border-radius: 100px;
-            font-size: 0.85rem;
-            color: var(--gold);
-            letter-spacing: 0.2em;
-            margin-bottom: 2rem;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .hero-badge.visible {
-            animation: fadeInUp 1s ease forwards;
-        }
-
-        .hero-title {
-            font-family: 'Noto Serif SC', serif;
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            opacity: 0;
-            transform: translateY(40px);
-        }
-
-        .hero-title.visible {
-            animation: fadeInUp 1.2s ease 0.3s forwards;
-        }
-
-        .hero-title .gold {
-            color: var(--gold);
-            display: block;
-        }
-
-        .hero-subtitle {
-            font-size: clamp(1rem, 2vw, 1.3rem);
-            color: var(--gray);
-            line-height: 1.8;
-            margin-bottom: 3rem;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .hero-subtitle.visible {
-            animation: fadeInUp 1s ease 0.6s forwards;
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .hero-cta.visible {
-            animation: fadeInUp 1s ease 0.9s forwards;
-        }
-
-        .btn-primary {
-            padding: 1rem 2.5rem;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            color: var(--dark);
-            text-decoration: none;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            border-radius: 100px;
-            transition: all 0.4s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 40px rgba(201, 164, 92, 0.3);
-        }
-
-        .btn-outline {
-            padding: 1rem 2.5rem;
-            background: transparent;
-            color: var(--gold);
-            text-decoration: none;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            border-radius: 100px;
-            border: 1px solid var(--gold);
-            transition: all 0.4s ease;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .btn-outline:hover {
-            background: var(--gold);
-            color: var(--dark);
-        }
-
-        .hero-scroll {
-            position: absolute;
-            bottom: 3rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            opacity: 0;
-        }
-
-        .hero-scroll.visible {
-            animation: fadeInUp 1s ease 1.2s forwards;
-        }
-
-        .scroll-indicator {
-            width: 30px;
-            height: 50px;
-            border: 2px solid rgba(201, 164, 92, 0.4);
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .scroll-indicator::after {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            background: var(--gold);
-            border-radius: 50%;
-            animation: scrollBounce 2s infinite;
-        }
-
-        @keyframes scrollBounce {
-            0%, 100% { top: 8px; opacity: 1; }
-            50% { top: 28px; opacity: 0.3; }
-        }
-
-        /* ===== SECTION COMMON ===== */
-        .section {
-            padding: 8rem 0;
-            position: relative;
-        }
-
-        .section-title {
-            font-family: 'Noto Serif SC', serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: var(--gray);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto 4rem;
-            line-height: 1.8;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* ===== VISION SECTION ===== */
-        .vision {
-            background: var(--dark-lighter);
-        }
-
-        .vision-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .vision-text h3 {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            line-height: 1.3;
-        }
-
-        .vision-text p {
-            color: var(--gray);
-            line-height: 2;
-            font-size: 1.05rem;
-        }
-
-        .vision-visual {
-            position: relative;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .orbit-container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-        }
-
-        .orbit-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Noto Serif SC', serif;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--dark);
-            box-shadow: 0 0 60px rgba(201, 164, 92, 0.4);
-        }
-
-        .orbit-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid rgba(201, 164, 92, 0.2);
-            border-radius: 50%;
-        }
-
-        .orbit-ring-1 {
-            width: 200px;
-            height: 200px;
-        }
-
-        .orbit-ring-2 {
-            width: 300px;
-            height: 300px;
-        }
-
-        .orbit-ring-3 {
-            width: 400px;
-            height: 400px;
-        }
-
-        .orbit-node {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background: var(--dark);
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: var(--gold);
-            font-weight: 500;
-        }
-
-        @keyframes orbit1 {
-            from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
-        }
-
-        @keyframes orbit2 {
-            from { transform: rotate(120deg) translateX(150px) rotate(-120deg); }
-            to { transform: rotate(480deg) translateX(150px) rotate(-480deg); }
-        }
-
-        @keyframes orbit3 {
-            from { transform: rotate(240deg) translateX(200px) rotate(-240deg); }
-            to { transform: rotate(600deg) translateX(200px) rotate(-600deg); }
-        }
-
-        .orbit-node-1 {
-            top: 50%;
-            left: 50%;
-            margin: -30px;
-            animation: orbit1 20s linear infinite;
-        }
-
-        .orbit-node-2 {
-            top: 50%;
-            left: 50%;
-            margin: -30px;
-            animation: orbit2 25s linear infinite;
-        }
-
-        .orbit-node-3 {
-            top: 50%;
-            left: 50%;
-            margin: -30px;
-            animation: orbit3 30s linear infinite;
-        }
-
-        /* ===== TIMELINE SECTION ===== */
-        .timeline {
-            background: var(--dark);
-        }
-
-        .timeline-wrapper {
-            position: relative;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .timeline-line {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(180deg, transparent 0%, var(--gold) 20%, var(--gold) 80%, transparent 100%);
-            transform: translateX(-50%);
-        }
-
-        .timeline-item {
-            display: flex;
-            justify-content: flex-end;
-            padding-right: 50%;
-            position: relative;
-            margin-bottom: 4rem;
-            opacity: 0;
-            transform: translateX(-50px);
-        }
-
-        .timeline-item:nth-child(even) {
-            justify-content: flex-start;
-            padding-right: 0;
-            padding-left: 50%;
-            transform: translateX(50px);
-        }
-
-        .timeline-item.visible {
-            animation: fadeInSlide 0.8s ease forwards;
-        }
-
-        .timeline-content {
-            max-width: 400px;
-            padding: 0 2rem;
-        }
-
-        .timeline-dot {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 20px;
-            background: var(--gold);
-            border-radius: 50%;
-            border: 4px solid var(--dark);
-            box-shadow: 0 0 20px rgba(201, 164, 92, 0.5);
-        }
-
-        .timeline-year {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-        }
-
-        .timeline-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .timeline-desc {
-            color: var(--gray);
-            line-height: 1.8;
-        }
-
-        /* ===== ARCHITECTURE SECTION ===== */
-        .architecture {
-            background: var(--dark-lighter);
-        }
-
-        .agent-flow {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .agent-step {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(201, 164, 92, 0.1);
-            border-radius: 16px;
-            margin-bottom: 1rem;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.4s ease;
-        }
-
-        .agent-step.visible {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .agent-step:hover {
-            background: rgba(201, 164, 92, 0.05);
-            border-color: rgba(201, 164, 92, 0.3);
-            transform: translateX(10px);
-        }
-
-        .agent-number {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--dark);
-            flex-shrink: 0;
-        }
-
-        .agent-info h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-
-        .agent-info p {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .agent-arrow {
-            text-align: center;
-            color: var(--gold);
-            font-size: 1.5rem;
-            margin: 0.5rem 0;
-            opacity: 0.5;
-        }
-
-        /* ===== FEATURES SECTION ===== */
-        .features {
-            background: var(--dark);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-        }
-
-        .feature-card {
-            padding: 3rem 2rem;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(201, 164, 92, 0.1);
-            border-radius: 20px;
-            text-align: center;
-            transition: all 0.4s ease;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .feature-card.visible {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .feature-card:hover {
-            background: rgba(201, 164, 92, 0.05);
-            border-color: rgba(201, 164, 92, 0.3);
-            transform: translateY(-10px);
-        }
-
-        .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, rgba(201, 164, 92, 0.2) 0%, rgba(139, 105, 20, 0.2) 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 1.8rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .feature-card p {
-            color: var(--gray);
-            line-height: 1.8;
-            font-size: 0.95rem;
-        }
-
-        /* ===== STATS SECTION ===== */
-        .stats {
-            background: linear-gradient(135deg, var(--brown) 0%, var(--dark) 100%);
-            padding: 6rem 0;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            text-align: center;
-        }
-
-        .stat-item {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .stat-item.visible {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .stat-number {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: var(--gold);
-            line-height: 1;
-        }
-
-        .stat-label {
-            margin-top: 1rem;
-            color: var(--gray);
-            font-size: 1rem;
-        }
-
-        /* ===== TEAM SECTION ===== */
-        .team {
-            background: var(--dark-lighter);
-        }
-
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-        }
-
-        .team-card {
-            text-align: center;
-            padding: 2rem;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .team-card.visible {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .team-avatar {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            border-radius: 50%;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-        }
-
-        .team-card h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-
-        .team-card p {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* ===== PARTNERS SECTION ===== */
-        .partners {
-            background: var(--dark);
-            padding: 5rem 0;
-        }
-
-        .partners-grid {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 4rem;
-            flex-wrap: wrap;
-        }
-
-        .partner-item {
-            padding: 1.5rem 2rem;
-            border: 1px solid rgba(201, 164, 92, 0.2);
-            border-radius: 12px;
-            color: var(--gray);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            opacity: 0;
-        }
-
-        .partner-item.visible {
-            animation: fadeIn 0.6s ease forwards;
-        }
-
-        .partner-item:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-
-        /* ===== CTA SECTION ===== */
-        .cta {
-            background: linear-gradient(135deg, var(--brown) 0%, var(--dark) 50%, var(--brown-light) 100%);
-            padding: 8rem 0;
-            text-align: center;
-        }
-
-        .cta h2 {
-            font-family: 'Noto Serif SC', serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta p {
-            color: var(--gray);
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: var(--dark);
-            border-top: 1px solid rgba(201, 164, 92, 0.1);
-            padding: 3rem 0;
-            text-align: center;
-        }
-
-        .footer-logo {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gold);
-            margin-bottom: 1rem;
-        }
-
-        .footer p {
-            color: var(--gray);
-            font-size: 0.9rem;
-            line-height: 2;
-        }
-
-        /* ===== ANIMATIONS ===== */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInSlide {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .vision-grid,
-            .features-grid,
-            .stats-grid,
-            .team-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .timeline-line {
-                left: 20px;
-            }
-
-            .timeline-item,
-            .timeline-item:nth-child(even) {
-                justify-content: flex-start;
-                padding-left: 50px;
-                padding-right: 0;
-                transform: translateX(30px);
-            }
-
-            .timeline-dot {
-                left: 20px;
-            }
-
-            .orbit-container {
-                transform: scale(0.7);
-            }
-
-            .hero-cta {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-logo">塞上法桥</div>
-        <div class="loading-sub">双核普惠智法平台</div>
-        <div class="loading-bar"></div>
+    <!-- 首次访问欢迎界面 -->
+    <div class="entry-welcome" id="entryWelcome" aria-hidden="true">
+        <div class="entry-welcome-backdrop"></div>
+        <div class="entry-welcome-panel" role="dialog" aria-modal="true" aria-labelledby="entryWelcomeTitle">
+            <button class="entry-welcome-close" id="entryWelcomeClose" aria-label="关闭欢迎界面">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="entry-welcome-badge">初次见面 · 欢迎来到塞上法桥</div>
+            <h2 class="entry-welcome-title" id="entryWelcomeTitle">宁夏大学李穆罕创业团队</h2>
+            <p class="entry-welcome-subtitle">携手宁夏网特校园有限公司，打造面向西北地区的温暖法律服务入口。</p>
+            <div class="entry-welcome-grid">
+                <section class="entry-card">
+                    <span class="entry-card-label">软件制作者</span>
+                    <p class="entry-card-text">宁夏大学李穆罕创业团队</p>
+                </section>
+                <section class="entry-card">
+                    <span class="entry-card-label">制作公司</span>
+                    <p class="entry-card-text">宁夏网特校园有限公司</p>
+                </section>
+            </div>
+            <section class="entry-mission">
+                <span class="entry-card-label">平台宗旨</span>
+                <p class="entry-mission-text">“塞上法桥”是一款面向西北地区普通民众与年轻律师的 AI 法律服务平台，采用“AI 即时生成 + 执业律师审核背书”的双轮驱动模式。</p>
+            </section>
+            <div class="entry-welcome-actions">
+                <button class="entry-welcome-btn" id="entryWelcomeConfirm">开启体验</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="nav" id="nav">
-        <a href="#" class="nav-logo">塞上法桥</a>
-        <ul class="nav-links">
-            <li><a href="#vision">核心理念</a></li>
-            <li><a href="#timeline">发展历程</a></li>
-            <li><a href="#architecture">技术架构</a></li>
-            <li><a href="#features">核心优势</a></li>
-            <li><a href="#team">团队介绍</a></li>
-        </ul>
-    </nav>
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="new-chat-btn" id="newChatBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                <span>新对话</span>
+            </button>
+        </div>
+        <div class="batch-actions-bar" id="batchActionsBar" style="display: none;">
+            <button class="batch-action-btn" id="selectAllBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                </svg>
+                <span>全选</span>
+            </button>
+            <button class="batch-action-btn danger" id="deleteSelectedBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                </svg>
+                <span>删除选中</span>
+            </button>
+            <button class="batch-action-btn" id="cancelBatchBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>取消</span>
+            </button>
+        </div>
+        <div class="chat-history" id="chatHistory">
+            <!-- 历史对话列表 -->
+        </div>
+        <div class="sidebar-footer">
+            <button class="sidebar-btn" id="batchManageBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                </svg>
+                <span>批量管理</span>
+            </button>
+            <button class="sidebar-btn" id="sidebarLoginBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>登录</span>
+            </button>
+        </div>
+    </aside>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-particles" id="particles"></div>
-        <div class="hero-content">
-            <div class="hero-badge">宁夏大学 · 大学生创新创业训练计划</div>
-            <h1 class="hero-title">
-                塞上法桥
-                <span class="gold">双核普惠智法平台</span>
-            </h1>
-            <p class="hero-subtitle">
-                采用"AI智能生成 + 执业律师审核"双轮驱动模式<br>
-                为西北地区普通民众与年轻律师搭建温暖的法律服务桥梁
-            </p>
-            <div class="hero-cta">
-                <a href="https://ebybng6ezk6lo.ok.kimi.link" class="btn-primary" target="_blank">立即体验</a>
-                <a href="#vision" class="btn-outline">了解更多</a>
+    <!-- 遮罩层 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- 设置弹窗 -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>系统设置</h2>
+                <button class="settings-close" id="settingsClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-        </div>
-        <div class="hero-scroll">
-            <div class="scroll-indicator"></div>
-        </div>
-    </section>
-
-    <!-- Vision Section -->
-    <section class="section vision" id="vision">
-        <div class="container">
-            <div class="vision-grid">
-                <div class="vision-text">
-                    <h3>AI × 律师<br>不是替代，是<span style="color: var(--gold);">协同</span></h3>
-                    <p>
-                        当前法律科技市场呈现明显的两极分化：一端是纯AI法律咨询工具，答案准确性无保障且无法承担法律责任；另一端是传统律师平台，价格高昂且响应缓慢。
-                        <br><br>
-                        塞上法桥开创"轻量级人机协作"新范式——AI负责快、准、全地检索信息并生成初稿，执业律师负责事实校准、裁判尺度校准与策略路径校准。最终交付的每一份方案，都经过律师电子签名确认，责任可追溯。
-                        <br><br>
-                        我们的目标不是用AI取代律师，而是让AI成为律师的得力助手，让优质法律服务以9.9元起的价格触达每一个需要的人。
-                    </p>
+            <div class="settings-body">
+                <div class="settings-sidebar">
+                    <button class="settings-tab active" data-tab="general">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+                        </svg>
+                        <span>通用设置</span>
+                    </button>
+                    <button class="settings-tab" data-tab="account">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>账号管理</span>
+                    </button>
+                    <button class="settings-tab" data-tab="data">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path>
+                        </svg>
+                        <span>数据管理</span>
+                    </button>
+                    <button class="settings-tab" data-tab="about">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>服务协议</span>
+                    </button>
                 </div>
-                <div class="vision-visual">
-                    <div class="orbit-container">
-                        <div class="orbit-ring orbit-ring-1"></div>
-                        <div class="orbit-ring orbit-ring-2"></div>
-                        <div class="orbit-ring orbit-ring-3"></div>
-                        <div class="orbit-center">双核</div>
-                        <div class="orbit-node orbit-node-1">AI生成</div>
-                        <div class="orbit-node orbit-node-2">律师审核</div>
-                        <div class="orbit-node orbit-node-3">平台背书</div>
+                <div class="settings-main">
+                    <!-- 通用设置 -->
+                    <div class="settings-panel active" id="generalPanel">
+                        <div class="settings-section">
+                            <h3 class="settings-section-title">主题</h3>
+                            <div class="theme-options">
+                                <button class="theme-option active" data-theme="light">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="5"></circle>
+                                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                    </svg>
+                                    <span>浅色</span>
+                                </button>
+                                <button class="theme-option" data-theme="dark">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                                    </svg>
+                                    <span>深色</span>
+                                </button>
+                                <button class="theme-option" data-theme="auto">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                                    </svg>
+                                    <span>跟随系统</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="settings-section">
+                            <h3 class="settings-section-title">语言</h3>
+                            <select class="settings-select" id="languageSelect">
+                                <option value="zh-CN">简体中文</option>
+                                <option value="en-US">English</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Timeline Section -->
-    <section class="section timeline" id="timeline">
-        <div class="container">
-            <h2 class="section-title">发展历程</h2>
-            <p class="section-subtitle">从课堂灵感到平台上线，每一步都踏实有力</p>
-            <div class="timeline-wrapper">
-                <div class="timeline-line"></div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-year">2025.3</div>
-                        <div class="timeline-title">发展萌芽</div>
-                        <div class="timeline-desc">团队完成用API与MCP服务测试，初步建立智能妹宝法律服务助手</div>
+                    <!-- 账号管理 -->
+                    <div class="settings-panel" id="accountPanel">
+                        <div class="settings-section">
+                            <h3 class="settings-section-title">账号管理</h3>
+                        </div>
                     </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-year">2025.04</div>
-                        <div class="timeline-title">平台上线</div>
-                        <div class="timeline-desc">三端平台同步上线：宣传端、用户端、律师端，基于Node.js + Express + MySQL技术栈</div>
+                    <!-- 数据管理 -->
+                    <div class="settings-panel" id="dataPanel">
+                        <div class="settings-section">
+                            <h3 class="settings-section-title">数据管理</h3>
+                        </div>
                     </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-year">2025.05</div>
-                        <div class="timeline-title">企业合作</div>
-                        <div class="timeline-desc">与网特校园科技有限公司签署项目合作协议，平台作为独立法律服务事业部运营</div>
+                    <!-- 服务协议 -->
+                    <div class="settings-panel" id="aboutPanel">
+                        <div class="settings-section">
+                            <h3 class="settings-section-title">用户协议</h3>
+                            <div class="agreement-docs">
+                                <button class="agreement-entry" type="button" data-agreement-target="serviceAgreementModal">
+                                    <div class="agreement-doc-header">
+                                        <div class="agreement-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="agreement-info">
+                                            <h4 class="agreement-title">塞上法桥用户服务协议</h4>
+                                            <p class="agreement-desc">最后更新日期：2026年4月8日</p>
+                                        </div>
+                                        <span class="agreement-entry-arrow">查看</span>
+                                    </div>
+                                </button>
+                                <button class="agreement-entry" type="button" data-agreement-target="privacyAgreementModal">
+                                    <div class="agreement-doc-header">
+                                        <div class="agreement-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="agreement-info">
+                                            <h4 class="agreement-title">塞上法桥隐私政策</h4>
+                                            <p class="agreement-desc">最后更新日期：2026年4月8日</p>
+                                        </div>
+                                        <span class="agreement-entry-arrow">查看</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-year">2025.6</div>
-                        <div class="timeline-title">律所对接</div>
-                        <div class="timeline-desc">与律师法律工作者，基层法官共创平台，开始启动律师入驻筹备</div>
-                    </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-year">2026.5</div>
-                        <div class="timeline-title">技术突破</div>
-                        <div class="timeline-desc">新一代塞上法桥发布v3.2版本，首次实现多AI API服务的agent模式</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Architecture Section -->
-    <section class="section architecture" id="architecture">
-        <div class="container">
-            <h2 class="section-title">六层Agent协作架构</h2>
-            <p class="section-subtitle">每个Agent只做最擅长的事，专业分工，精准协作</p>
-            
-            <div class="agent-flow">
-                <div class="agent-step">
-                    <div class="agent-number">①</div>
-                    <div class="agent-info">
-                        <h4>智谱GLM — 意图识别Agent</h4>
-                        <p>中文语义理解深度优异，将用户自然语言转化为100+法律场景标签，分类准确率≥90%</p>
-                    </div>
-                </div>
-                <div class="agent-arrow">↓</div>
-                
-                <div class="agent-step">
-                    <div class="agent-number">②</div>
-                    <div class="agent-info">
-                        <h4>阿里法睿 — 法条检索Agent</h4>
-                        <p>法律垂类模型，内置权威法律数据库，解决通用大模型"法条幻觉"问题，引用准确率领先32%</p>
-                    </div>
-                </div>
-                <div class="agent-arrow">↓</div>
-                
-                <div class="agent-step">
-                    <div class="agent-number">③</div>
-                    <div class="agent-info">
-                        <h4>得理科技 — 案例搜索Agent</h4>
-                        <p>1.3亿裁判文书库，基于案情要素智能匹配，返回"同地区、同案由、近期"参考判例</p>
-                    </div>
-                </div>
-                <div class="agent-arrow">↓</div>
-                
-                <div class="agent-step">
-                    <div class="agent-number">④</div>
-                    <div class="agent-info">
-                        <h4>DeepSeek — 专业生成Agent</h4>
-                        <p>推理链条长、逻辑严密，擅长复杂法律问题的结构化拆解与深度分析</p>
-                    </div>
-                </div>
-                <div class="agent-arrow">↓</div>
-                
-                <div class="agent-step">
-                    <div class="agent-number">⑤</div>
-                    <div class="agent-info">
-                        <h4>千问3.5 Plus — 风险提示Agent</h4>
-                        <p>安全对齐充分，识别程序风险与实体风险，模拟律所"双人复核"机制</p>
-                    </div>
-                </div>
-                <div class="agent-arrow">↓</div>
-                
-                <div class="agent-step">
-                    <div class="agent-number">⑥</div>
-                    <div class="agent-info">
-                        <h4>Kimi — 格式化输出Agent</h4>
-                        <p>长文本处理与结构化输出能力突出，整合碎片化输出为规范法律文书</p>
-                    </div>
-                </div>
-                <div class="agent-arrow">↓</div>
-                
-                <div class="agent-step" style="border-color: var(--gold); background: rgba(201, 164, 92, 0.05);">
-                    <div class="agent-number" style="background: var(--gold); color: var(--dark);">★</div>
-                    <div class="agent-info">
-                        <h4>执业律师 — 人工审核背书</h4>
-                        <p>最终由执业律师电子签名确认，责任可追溯，确保答案在本地司法实践中站得住脚</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="section features" id="features">
-        <div class="container">
-            <h2 class="section-title">核心优势</h2>
-            <p class="section-subtitle">与传统法律服务模式相比，塞上法桥在成本、效率与质量之间找到最佳平衡</p>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>AI即时响应</h3>
-                    <p>多轮对话式预诊，快速响应+深度思考两种模式，AI先探求真实法律需求，过滤无关情绪</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>律师审核背书</h3>
-                    <p>每一份交付的答案都经过执业律师审核并电子签名确认，责任可追溯，非纯AI输出的"无人负责"方案</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3>普惠定价</h3>
-                    <p>9.9元起，仅为传统法律咨询的1/20。AI预审降低成本，让普通民众也能获得专业法律服务</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📍</div>
-                    <h3>本地裁判尺度</h3>
-                    <p>与宁夏本地律所深度合作，AI答案经过"本地法院怎么认"的校准，不是纸面正确而是实务可用</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🌱</div>
-                    <h3>青年律师扶持</h3>
-                    <p>平台算法向年轻律师倾斜流量，解决其"没案源"困境，同时为用户提供更具性价比的服务</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>三层责任机制</h3>
-                    <p>律师电子签名 + 执业责任险 + 平台风险准备金，构建"技术+专业+保险"的完整责任兜底</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Stats Section -->
-    <section class="stats" id="stats">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">475+</div>
-                    <div class="stat-label">平台累计访问</div>
+    <div class="agreement-modal" id="serviceAgreementModal" aria-hidden="true">
+        <div class="agreement-modal-backdrop" data-agreement-close></div>
+        <div class="agreement-modal-panel" role="dialog" aria-modal="true" aria-labelledby="serviceAgreementTitle">
+            <button class="agreement-modal-close" type="button" data-agreement-close aria-label="关闭用户服务协议">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="agreement-modal-header">
+                <h3 id="serviceAgreementTitle">塞上法桥用户服务协议</h3>
+                <p>最后更新日期：2026年4月8日</p>
+            </div>
+            <div class="agreement-modal-body">
+                <p>欢迎使用塞上法桥！</p>
+                <p>塞上法桥（以下简称本平台）是由网特校园科技有限公司（以下简称我们）开发运营的AI法律服务平台。本协议是您（以下简称用户或您）与我们之间关于使用本平台服务的协议。</p>
+                <p><strong>【特别提示】</strong></p>
+                <p><strong>请您务必审慎阅读、充分理解本协议各条款内容，特别是以粗体、红色标注的条款。您点击同意或实际使用本平台服务，即视为您已阅读并同意受本协议约束。如您不同意本协议，请立即停止使用。</strong></p>
+                <h5>一、服务内容与性质</h5>
+                <p><strong>1.1 服务定义</strong></p>
+                <p>本平台是“AI+律师”双核驱动的法律服务平台，提供以下服务：</p>
+                <p>（1）AI法律分析服务：通过人工智能技术对您提交的法律问题进行初步分析；</p>
+                <p>（2）律师审核服务：由专业执业律师对AI分析结果进行审核、修正并出具正式法律意见；</p>
+                <p>（3）文书服务：法律文书中英文翻译、合同审查等。</p>
+                <p><strong>1.2 服务性质声明</strong></p>
+                <p>（1）本平台定位为技术信息服务中介，不直接提供法律意见。最终法律意见由入驻本平台的第三方独立执业律师提供。</p>
+                <p>（2）AI生成的内容仅供参考，不构成正式法律意见，平台不对AI内容的准确性、完整性承担法律责任。</p>
+                <p>（3）律师以其个人名义独立向用户提供服务，对其出具的法律意见的专业性、合法性负责，平台仅提供技术撮合与流程担保服务。</p>
+                <h5>二、账号注册与使用规则</h5>
+                <p>2.1 您承诺在注册和使用本平台时提供真实、准确、完整的身份信息。</p>
+                <p>2.2 您应当妥善保管账号和密码，对账号下的所有行为承担法律责任。</p>
+                <p><strong>2.3 禁止行为：您不得利用本平台从事以下行为：</strong></p>
+                <p>（1）提交虚假信息、伪造证据或隐瞒关键事实；</p>
+                <p>（2）将本平台用于诈骗、虚假诉讼、侵犯他人合法权益等违法活动；</p>
+                <p>（3）绕过平台与律师私下交易（“飞单”）；</p>
+                <p>（4）对本平台进行反向工程、破解或攻击。</p>
+                <h5>三、费用与结算</h5>
+                <p>3.1 服务费用以平台页面公示为准，起步价为9.9元，根据问题复杂程度浮动。</p>
+                <p>3.2 费用分配：用户支付的费用按以下比例分配：律师70%、平台运营资金15%、网特校园管理费10%、风险准备金5%。</p>
+                <p>3.3 深度服务：本平台仅提供在线咨询及文书草拟服务。如您需要律师出庭代理、代为起诉等诉讼代理服务，您应与律师另行签订《委托代理合同》，相关费用直接与律师结算，平台不参与该部分收益分配，也不对该部分服务承担责任。</p>
+                <p>3.4 退款政策：</p>
+                <p>• 若律师未在承诺时间内（30分钟内）回复，您可申请全额退款；</p>
+                <p>• 若律师已提供针对性书面答复，原则上不予退款；</p>
+                <p>• 若因律师专业能力问题导致答复有重大瑕疵，经平台核实后可协调部分退款或重新指派。</p>
+                <h5>四、知识产权</h5>
+                <p>4.1 本平台的界面设计、代码、标识、AI算法等知识产权归网特校园科技有限公司所有。</p>
+                <p>4.2 律师出具的法律意见知识产权归该律师所有，用户仅获得个人使用的许可，不得用于商业目的或再次传播。</p>
+                <p>4.3 您在本平台提交的问题描述、上传的文件等内容的知识产权归您所有，您授权平台为提供服务之目的进行使用和处理。</p>
+                <h5>五、隐私保护与数据安全</h5>
+                <p>5.1 信息收集：为提供服务，我们收集：您的手机号（用于注册登录）、咨询内容（问题描述、上传文件）、设备信息（IP地址、设备型号）。</p>
+                <p>5.2 信息使用：我们仅在提供服务必要范围内使用您的信息，包括：将您的问题推送给AI引擎和匹配律师、服务质量监控、合规审计。</p>
+                <p>5.3 信息共享：向律师展示您的问题时，我们会隐藏您的手机号等敏感信息。脱敏后的案例可能用于公众号普法宣传，但不会泄露您的身份信息。</p>
+                <p>5.4 您的权利：您有权查询、更正、删除您的个人信息。您可以通过“我的”页面查看咨询记录，通过客服申请删除账号。</p>
+                <p>5.5 例外情形：如发现您存在违法犯罪行为，我们将依法向公安机关披露相关信息。详细规则请查看《隐私政策》。</p>
+                <h5>六、免责声明与责任限制</h5>
+                <p><strong>6.1 AI内容免责：AI生成的内容仅供参考，不构成正式法律意见。平台不对AI分析结果的准确性、完整性承担任何法律责任。您应自行判断AI内容的可靠性，并在必要时咨询专业律师。</strong></p>
+                <p><strong>6.2 律师服务免责：律师以其个人名义独立向用户提供服务，平台不对律师出具的法律意见的内容、结果（如胜诉/败诉）作出任何承诺或担保。因律师服务质量产生的纠纷，由用户与律师自行协商解决，平台仅提供必要的协调协助。</strong></p>
+                <p>6.3 服务中断免责：因不可抗力（如网络攻击、政府行为、自然灾害、系统维护）导致服务中断或数据丢失的，平台不承担违约责任，但将尽力及时恢复服务。</p>
+                <p>6.4 用户行为免责：因您违反本协议或提供虚假信息导致的任何损失，由您自行承担，平台不承担责任。</p>
+                <h5>七、未成年人保护</h5>
+                <p>7.1 本平台主要面向年满18周岁的成年人。</p>
+                <p>7.2 如您未满18周岁，请在监护人陪同下使用本服务，或由监护人代为提交咨询。</p>
+                <p>7.3 如您是14周岁以下的儿童，我们建议您不要直接向平台提供任何个人信息。</p>
+                <h5>八、协议变更与终止</h5>
+                <p>8.1 平台有权根据法律法规或业务需要修改本协议，修改后的协议将在平台公示。</p>
+                <p>8.2 如您不同意修改内容，应立即停止使用服务。如您继续使用，视为接受修改后的协议。</p>
+                <p>8.3 如您违反本协议，平台有权暂停或终止您的账号，并追究相应法律责任。</p>
+                <h5>九、法律适用与争议解决</h5>
+                <p>9.1 本协议适用中华人民共和国法律。</p>
+                <p>9.2 因本协议引起的或与本协议有关的任何争议，双方应友好协商解决；协商不成的，任何一方均有权将争议提交银川市仲裁委员会按照其届时有效的仲裁规则进行仲裁。仲裁裁决是终局的，对双方均有约束力。</p>
+                <h5>十、联系我们</h5>
+                <p>如您对本协议有任何疑问，或需要行使您的权利，请联系我们：</p>
+                <p>• 邮箱：saishangfaqiao@example.com</p>
+                <p>• 公众号：塞上法桥（后台留言）</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="agreement-modal" id="privacyAgreementModal" aria-hidden="true">
+        <div class="agreement-modal-backdrop" data-agreement-close></div>
+        <div class="agreement-modal-panel" role="dialog" aria-modal="true" aria-labelledby="privacyAgreementTitle">
+            <button class="agreement-modal-close" type="button" data-agreement-close aria-label="关闭隐私政策">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="agreement-modal-header">
+                <h3 id="privacyAgreementTitle">塞上法桥隐私政策</h3>
+                <p>最后更新日期：2026年4月8日</p>
+            </div>
+            <div class="agreement-modal-body">
+                <p>欢迎使用塞上法桥！</p>
+                <p>塞上法桥（以下简称本平台）是由网特校园科技有限公司（以下简称我们）开发运营的AI法律服务平台。本隐私政策用于说明我们如何收集、使用、存储、共享和保护您的个人信息。</p>
+                <p><strong>【特别提示】</strong></p>
+                <p><strong>请您务必审慎阅读、充分理解本政策全部内容，特别是涉及敏感个人信息处理、信息共享、免责条款等重要内容。您点击同意或继续使用本平台服务，即表示您已理解并同意本隐私政策。</strong></p>
+                <h5>一、我们收集的信息</h5>
+                <p>1.1 为提供服务，我们可能收集您的手机号（用于注册登录）、咨询内容（包括问题描述、上传文件等）以及设备信息（包括IP地址、设备型号、浏览器信息等）。</p>
+                <p>1.2 当您使用AI法律分析、律师审核、文书服务等功能时，我们会根据服务需要处理您主动提交的信息。</p>
+                <h5>二、我们如何使用信息</h5>
+                <p>2.1 我们仅在提供服务必要范围内使用您的信息，包括但不限于：将您的问题推送给AI引擎和匹配律师、服务质量监控、风险控制、合规审计和运营优化。</p>
+                <p>2.2 我们不会将您的个人信息用于与本平台服务无关的用途，除非另行取得您的授权同意或依据法律法规要求。</p>
+                <h5>三、信息共享与公开披露</h5>
+                <p>3.1 向律师展示您的问题时，我们会尽量隐藏您的手机号等敏感信息，以降低身份识别风险。</p>
+                <p>3.2 脱敏后的咨询案例可能用于公众号普法宣传、产品优化或教学研究，但不会泄露可识别您身份的信息。</p>
+                <p>3.3 如因司法机关、行政机关依法要求，或为维护公共安全、合法权益之必要，我们可能依法披露相关信息。</p>
+                <h5>四、您的权利</h5>
+                <p>4.1 您有权查询、更正、删除您的个人信息，并有权申请注销账号。</p>
+                <p>4.2 您可以通过“我的”页面查看咨询记录，也可以通过客服申请删除账号或相关数据。</p>
+                <p>4.3 如您撤回授权，可能会影响部分功能的正常使用，但不影响撤回前基于您的授权所开展的信息处理活动。</p>
+                <h5>五、信息存储与安全</h5>
+                <p>5.1 我们将采取合理必要的技术与管理措施保护您的信息安全，防止数据被未经授权访问、披露、篡改或丢失。</p>
+                <p>5.2 尽管如此，互联网传输并非绝对安全，您理解并同意在网络环境下的信息传输存在一定风险。</p>
+                <h5>六、未成年人信息保护</h5>
+                <p>6.1 本平台主要面向年满18周岁的成年人。</p>
+                <p>6.2 如您未满18周岁，请在监护人陪同下阅读并使用本服务；如您是14周岁以下儿童，我们建议您不要直接向平台提供任何个人信息。</p>
+                <h5>七、例外情形</h5>
+                <p>7.1 如发现您存在违法犯罪行为，我们将依法向公安机关、司法机关或其他有权机关披露相关信息。</p>
+                <p>7.2 在法律法规允许的范围内，我们可能基于公共利益、履行法定义务或保护重大合法权益等情形处理您的信息。</p>
+                <h5>八、政策更新与联系我们</h5>
+                <p>8.1 我们可能根据法律法规变化、产品功能调整或运营需要对本隐私政策进行更新，并通过平台页面向您公示。</p>
+                <p>8.2 如您对本隐私政策有任何疑问，或需要行使您的个人信息权利，请联系我们：</p>
+                <p>• 邮箱：saishangfaqiao@example.com</p>
+                <p>• 公众号：塞上法桥（后台留言）</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 法律智能体付费提示 -->
+    <div class="agent-service-modal" id="agentServiceModal" aria-hidden="true">
+        <div class="agent-service-backdrop" data-agent-service-close></div>
+        <div class="agent-service-panel" role="dialog" aria-modal="true" aria-labelledby="agentServiceTitle">
+            <button class="agent-service-close" id="agentServiceClose" type="button" aria-label="关闭法律智能体服务提示">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="agent-service-badge">法律智能体服务</div>
+            <h2 class="agent-service-title" id="agentServiceTitle">最低9.9元，即可获得更完整的法律支持</h2>
+            <p class="agent-service-subtitle">享受全面法律分析、法律文书撰写，以及专业律师审核责任背书，让咨询结果更专业、更安心。</p>
+
+            <div class="agent-service-highlights">
+                <section class="agent-service-card featured">
+                    <span class="agent-service-card-label">服务内容</span>
+                    <ul class="agent-service-list">
+                        <li>案情梳理与争议焦点分析</li>
+                        <li>法律依据匹配与应对策略建议</li>
+                        <li>法律文书草稿生成与导出</li>
+                        <li>专业律师审核责任背书</li>
+                    </ul>
+                </section>
+                <section class="agent-service-card">
+                    <span class="agent-service-card-label">使用好处</span>
+                    <ul class="agent-service-list compact">
+                        <li>比普通 AI 建议更系统、更贴近实务</li>
+                        <li>减少遗漏关键风险与证据要点</li>
+                        <li>适合展示、维权、咨询前准备材料</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="agent-service-actions">
+                <button class="agent-service-btn secondary" id="agentServiceAiOnly" type="button">仅需AI法律建议</button>
+                <button class="agent-service-btn primary" id="agentServiceConfirm" type="button">开始使用</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mode-intro-modal" id="modeIntroModal" aria-hidden="true">
+        <div class="mode-intro-backdrop" data-mode-intro-close></div>
+        <div class="mode-intro-panel" role="dialog" aria-modal="true" aria-labelledby="modeIntroTitle">
+            <button class="mode-intro-close" id="modeIntroClose" type="button" aria-label="关闭模式介绍">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="mode-intro-header">
+                <h3 id="modeIntroTitle">服务流程</h3>
+                <p class="mode-intro-subtitle">快速思考、深度思考、法律智能体三种模式，为您提供渐进式法律服务</p>
+            </div>
+
+            <div class="mode-intro-stage stage-chat">
+                <div class="mode-intro-stage-head">
+                    <div class="mode-intro-step-badge">01</div>
+                    <div class="mode-intro-stage-title-wrap">
+                        <h4 class="mode-intro-stage-title">AI 智能对话</h4>
+                    </div>
+                    <span class="mode-intro-price-badge free">免费</span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">85%</div>
-                    <div class="stat-label">用户好评率</div>
+
+                <div class="mode-intro-mode-tags">
+                    <span class="mode-intro-mode-pill fast">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        快速思考
+                    </span>
+                    <span class="mode-intro-mode-pill deep">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                        </svg>
+                        深度思考
+                    </span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">9.9</div>
-                    <div class="stat-label">元起服务定价</div>
+
+                <p class="mode-intro-stage-desc">与您多轮对话，主动提问以充分了解案情，精准总结您的真实法律需求</p>
+            </div>
+
+            <div class="mode-intro-upgrade-banner">信息充足后 · AI 推荐升级</div>
+
+            <div class="mode-intro-upgrade-grid">
+                <section class="mode-intro-option-card advice-card">
+                    <span class="mode-intro-option-badge free">免费</span>
+                    <div class="mode-intro-option-icon advice">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                            <path d="M9 9h6v6H9z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="mode-intro-option-title">AI 法律建议</h4>
+                    <p class="mode-intro-option-desc">即时获得基础法律分析与建议</p>
+                </section>
+
+                <div class="mode-intro-or">或</div>
+
+                <section class="mode-intro-option-card agent-card">
+                    <div class="mode-intro-card-tags">
+                        <span class="mode-intro-option-badge paid">付费升级</span>
+                        <span class="mode-intro-option-badge recommend">推荐</span>
+                    </div>
+                    <div class="mode-intro-option-icon agent">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h4 class="mode-intro-option-title">法律智能体</h4>
+                    <p class="mode-intro-option-desc">全面法律答案 + 律师审核责任背书</p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 三角形裂开动画背景 -->
+    <div class="triangle-split-container">
+        <div class="triangle-panel triangle-top"></div>
+        <div class="triangle-panel triangle-bottom-left"></div>
+        <div class="triangle-panel triangle-bottom-right"></div>
+        <div class="triangle-glow"></div>
+    </div>
+
+    <!-- 顶部工具栏 -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <span class="menu-normal menu-law-icon" aria-label="塞上法桥图标">
+                    <svg viewBox="0 0 128 128" width="24" height="24" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="lawIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#d89245"></stop>
+                                <stop offset="100%" stop-color="#9a5820"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M64 10c4.4 0 8 3.6 8 8v4h26c2.5 0 4.7 1.5 5.7 3.8 1 2.3.5 5-1.3 6.9l-8.2 8.7c-1.8 1.9-4.7 2.6-7.1 1.6-2.4-1-4-3.3-4-5.9v-2.1H45v2.1c0 2.6-1.6 4.9-4 5.9-2.4 1-5.3.3-7.1-1.6l-8.2-8.7c-1.8-1.9-2.3-4.6-1.3-6.9C25.3 23.5 27.5 22 30 22h26v-4c0-4.4 3.6-8 8-8z" fill="url(#lawIconGradient)"></path>
+                        <rect x="59" y="28" width="10" height="52" rx="5" fill="url(#lawIconGradient)"></rect>
+                        <path d="M36 43l-14 21h28L36 43zm56 0L78 64h28L92 43z" fill="none" stroke="url(#lawIconGradient)" stroke-width="4" stroke-linejoin="round"></path>
+                        <path d="M22 64c2 8 9.1 13 17 13s15-5 17-13H22zm56 0c2 8 9.1 13 17 13s15-5 17-13H78z" fill="url(#lawIconGradient)"></path>
+                        <rect x="56" y="80" width="16" height="26" rx="2" fill="url(#lawIconGradient)"></rect>
+                        <path d="M44 106h40l10 12H34l10-12z" fill="url(#lawIconGradient)"></path>
+                        <path d="M76 78l22 18-7 8-22-18 7-8z" fill="url(#lawIconGradient)"></path>
+                        <rect x="92" y="92" width="18" height="10" rx="3" transform="rotate(39 92 92)" fill="#b56a2f"></rect>
+                    </svg>
+                </span>
+                <svg class="menu-tech" width="24" height="24" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="8" fill="url(#menuGradient)"/>
+                    <path d="M50,30 Q45,35 50,42 Q55,35 50,30" fill="url(#menuGradient)" opacity="0.8"/>
+                    <path d="M70,50 Q65,45 58,50 Q65,55 70,50" fill="url(#menuGradient)" opacity="0.8"/>
+                    <path d="M50,70 Q55,65 50,58 Q45,65 50,70" fill="url(#menuGradient)" opacity="0.8"/>
+                    <path d="M30,50 Q35,55 42,50 Q35,45 30,50" fill="url(#menuGradient)" opacity="0.8"/>
+                    <defs>
+                        <linearGradient id="menuGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea"/>
+                            <stop offset="100%" style="stop-color:#764ba2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </button>
+            <button class="icon-btn" id="historyBtn" title="历史记录">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </button>
+            <button class="icon-btn" id="settingsBtn" title="设置">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="header-right">
+            <button class="agent-btn" id="agentBtn" title="智能体" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z"></path>
+                    <path d="M8 8l-2-2M16 8l2-2M12 4V2"></path>
+                </svg>
+                <span class="agent-btn-text">智能体</span>
+            </button>
+            <button class="icon-btn" id="toggleAgentSidebarBtn" title="智能体侧边栏" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主容器 -->
+    <div class="container" id="mainContainer">
+        <div class="agent-workspace" id="agentWorkspace">
+            <div class="agent-main-column">
+        <!-- 欢迎屏幕 -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="logo-section">
+                <div class="logo-emoji">
+                    <span class="logo-normal logo-law-icon" aria-label="塞上法桥图标">
+                        <svg viewBox="0 0 128 128" width="92" height="92" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="heroLawIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#d89245"></stop>
+                                    <stop offset="100%" stop-color="#9a5820"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M64 10c4.4 0 8 3.6 8 8v4h26c2.5 0 4.7 1.5 5.7 3.8 1 2.3.5 5-1.3 6.9l-8.2 8.7c-1.8 1.9-4.7 2.6-7.1 1.6-2.4-1-4-3.3-4-5.9v-2.1H45v2.1c0 2.6-1.6 4.9-4 5.9-2.4 1-5.3.3-7.1-1.6l-8.2-8.7c-1.8-1.9-2.3-4.6-1.3-6.9C25.3 23.5 27.5 22 30 22h26v-4c0-4.4 3.6-8 8-8z" fill="url(#heroLawIconGradient)"></path>
+                            <rect x="59" y="28" width="10" height="52" rx="5" fill="url(#heroLawIconGradient)"></rect>
+                            <path d="M36 43l-14 21h28L36 43zm56 0L78 64h28L92 43z" fill="none" stroke="url(#heroLawIconGradient)" stroke-width="4" stroke-linejoin="round"></path>
+                            <path d="M22 64c2 8 9.1 13 17 13s15-5 17-13H22zm56 0c2 8 9.1 13 17 13s15-5 17-13H78z" fill="url(#heroLawIconGradient)"></path>
+                            <rect x="56" y="80" width="16" height="26" rx="2" fill="url(#heroLawIconGradient)"></rect>
+                            <path d="M44 106h40l10 12H34l10-12z" fill="url(#heroLawIconGradient)"></path>
+                            <path d="M76 78l22 18-7 8-22-18 7-8z" fill="url(#heroLawIconGradient)"></path>
+                            <rect x="92" y="92" width="18" height="10" rx="3" transform="rotate(39 92 92)" fill="#b56a2f"></rect>
+                        </svg>
+                    </span>
+                    <svg class="logo-tech" width="80" height="80" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="8" fill="url(#techGradient)">
+                            <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <path d="M50,30 Q45,35 50,42 Q55,35 50,30" fill="url(#techGradient)" opacity="0.8">
+                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M70,50 Q65,45 58,50 Q65,55 70,50" fill="url(#techGradient)" opacity="0.8">
+                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M50,70 Q55,65 50,58 Q45,65 50,70" fill="url(#techGradient)" opacity="0.8">
+                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M30,50 Q35,55 42,50 Q35,45 30,50" fill="url(#techGradient)" opacity="0.8">
+                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite"/>
+                        </path>
+                        <circle cx="50" cy="50" r="20" fill="none" stroke="url(#techGradient)" stroke-width="1" opacity="0.4">
+                            <animate attributeName="r" values="20;25;20" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <defs>
+                            <linearGradient id="techGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea"/>
+                                <stop offset="100%" style="stop-color:#764ba2"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">6</div>
-                    <div class="stat-label">层Agent协作</div>
+                <h1 class="title">塞上法桥</h1>
+                <p class="subtitle">宁夏大学法学专业 · 你的温柔法律助手</p>
+                <p class="subtitle agent-beta">智能体测试版</p>
+            </div>
+        </div>
+
+        <!-- 消息容器 -->
+        <div class="messages-container" id="messagesContainer"></div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <div class="mode-selector-toolbar">
+                <button class="mode-intro-trigger" id="modeIntroBtn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                    <span>模式介绍</span>
+                </button>
+            </div>
+            <div class="mode-selector">
+                <div class="mode-btn active" id="fastModeBtn" role="button" tabindex="0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>快速回答</span>
+                </div>
+                <div class="mode-btn" id="deepModeBtn" role="button" tabindex="0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    <span>深度思考</span>
+                </div>
+                <button class="mode-btn" id="legalAgentBtn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 010 7.75"></path>
+                    </svg>
+                    <span>法律智能体</span>
+                </button>
+            </div>
+
+            <!-- 法律智能体专属按钮组 -->
+            <div class="agent-action-selector" id="agentActionSelector" style="display: none;">
+                <button class="agent-action-btn" id="comprehensiveAdviceBtn" type="button" data-mode="analysis">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 22 12 18.56 5.82 22 7 13.87 2 9l6.91-.74L12 2z"></path>
+                    </svg>
+                    <span>综合建议</span>
+                </button>
+                <button class="agent-action-btn" id="legalBasisBtn" type="button" data-mode="basis">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <line x1="10" y1="9" x2="8" y2="9"></line>
+                    </svg>
+                    <span>法律依据</span>
+                </button>
+                <button class="agent-action-btn" id="strategyBtn" type="button" data-mode="strategy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    <span>应对策略</span>
+                </button>
+                <button class="agent-action-btn" id="riskBtn" type="button" data-mode="risk">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>风险提示</span>
+                </button>
+                <button class="agent-action-btn" id="caseBtn" type="button" data-mode="case">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>参考案例</span>
+                </button>
+                <button class="agent-action-btn" id="documentBtn" type="button" data-mode="document">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <path d="M3 15h6M3 12h4M3 18h6"></path>
+                    </svg>
+                    <span>法律文书</span>
+                </button>
+            </div>
+
+            <div class="input-container">
+                <button class="random-question-btn" id="randomQuestionBtn" title="随机生成法律问题">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+                    </svg>
+                    <span>测试</span>
+                </button>
+                <div class="input-wrapper">
+                    <textarea
+                        id="messageInput"
+                        placeholder="有什么法律问题想问我吗？～"
+                        rows="1"
+                    ></textarea>
+                    <button class="attach-btn" id="attachBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                    </button>
+                    <button class="send-btn" id="sendBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 19V5M5 12L12 5L19 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Team Section -->
-    <section class="section team" id="team">
-        <div class="container">
-            <h2 class="section-title">团队与指导</h2>
-            <p class="section-subtitle">法学专业底蕴 + 教育技术学支撑 + 学术与实战双重指导</p>
-            
-            <div class="team-grid">
-                <div class="team-card">
-                    <div class="team-avatar">👨‍🎓</div>
-                    <h4>李穆罕</h4>
-                    <p>项目主持人<br>宁夏大学法学院 2024级</p>
-                </div>
-                
-                <div class="team-card">
-                    <div class="team-avatar">👨‍🏫</div>
-                    <h4>马杰教授</h4>
-                    <p>学术指导教师<br>宁夏大学法学院</p>
-                </div>
-                
-                <div class="team-card">
-                    <div class="team-avatar">👔</div>
-                    <h4>曹嘉鑫</h4>
-                    <p>实战指导<br>网特校园董事长</p>
-                </div>
-                
-                <div class="team-card">
-                    <div class="team-avatar">👥</div>
-                    <h4>7人团队</h4>
-                    <p>6法学 + 1教育技术学<br>跨学科协作</p>
-                </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Partners Section -->
-    <section class="partners" id="partners">
-        <div class="container">
-            <h2 class="section-title">期待新的伙伴加入</h2>
-            <div class="partners-grid">
-                <div class="partner-item">宁夏网特校园科技有限公司</div>
-                <div class="partner-item">宁夏大学勤学书院</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Join Us Section -->
-    <section class="partners" id="joinus" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);">
-        <div class="container">
-            <h2 class="section-title">欢迎加入我们塞上法桥团队</h2>
-            <p class="section-subtitle" style="text-align: center; color: #999; margin-bottom: 40px;">无论你是开发者、设计师、法律工作者还是对AI法律服务充满热情的同学，我们都期待与你同行</p>
-            <div class="partners-grid">
-                <div class="partner-item">
-                    <div style="font-size: 28px; margin-bottom: 8px;">📧</div>
-                    <div style="font-size: 14px; color: #c9a45c;">1538100520@qq.com</div>
+            <aside class="agent-right-sidebar" id="agentRightSidebar" aria-hidden="true">
+                <div class="agent-right-sidebar-header">
+                    <button class="agent-sidebar-close" id="agentSidebarCloseBtn" title="关闭侧边栏">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <span class="agent-right-sidebar-badge">智能体侧边栏</span>
+                    <div class="agent-view-toggle">
+                        <button class="agent-view-btn active" id="agentViewFlowBtn" type="button" data-view="flow">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+                            </svg>
+                            <span>流程</span>
+                        </button>
+                        <button class="agent-view-btn" id="agentViewResultBtn" type="button" data-view="result" style="display: none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <line x1="10" y1="9" x2="8" y2="9"></line>
+                            </svg>
+                            <span>结果</span>
+                        </button>
+                    </div>
+                    <h3 id="agentSidebarTitle">塞上法桥智能体启动</h3>
+                    <p id="agentSidebarDesc">正在为当前法律问题调度多阶段流程，请稍候。</p>
                 </div>
-                <div class="partner-item">
-                    <div style="font-size: 28px; margin-bottom: 8px;">📱</div>
-                    <div style="font-size: 14px; color: #c9a45c;">15764888330</div>
+                <div class="agent-right-sidebar-body">
+                    <div class="agent-sidebar-stage agent-sidebar-stage-flow active" id="agentSidebarFlowStage">
+                        <div class="agent-pipeline-card">
+                            <div class="agent-pipeline-glow"></div>
+                            <div class="agent-pipeline-node active" data-step="1">
+                                <div class="agent-node-index">①</div>
+                                <div class="agent-node-content">
+                                    <div class="agent-node-title">任务分化 Agent</div>
+                                    <div class="agent-node-status">通义法睿资料搜索中</div>
+                                </div>
+                            </div>
+                            <div class="agent-pipeline-line"></div>
+                            <div class="agent-pipeline-node" data-step="2">
+                                <div class="agent-node-index">②</div>
+                                <div class="agent-node-content">
+                                    <div class="agent-node-title">智谱 GLM-5 意图识别</div>
+                                    <div class="agent-node-status">等待执行</div>
+                                </div>
+                            </div>
+                            <div class="agent-pipeline-line"></div>
+                            <div class="agent-pipeline-node" data-step="3">
+                                <div class="agent-node-index">③</div>
+                                <div class="agent-node-content">
+                                    <div class="agent-node-title">检索 Agent → 通义法睿 API</div>
+                                    <div class="agent-node-status">等待执行</div>
+                                </div>
+                            </div>
+                            <div class="agent-pipeline-line"></div>
+                            <div class="agent-pipeline-node" data-step="4">
+                                <div class="agent-node-index">④</div>
+                                <div class="agent-node-content">
+                                    <div class="agent-node-title">写作 Agent → DeepSeek-R1 API</div>
+                                    <div class="agent-node-status">等待执行</div>
+                                </div>
+                            </div>
+                            <div class="agent-pipeline-line"></div>
+                            <div class="agent-pipeline-node" data-step="5">
+                                <div class="agent-node-index">⑤</div>
+                                <div class="agent-node-content">
+                                    <div class="agent-node-title">格式化 Agent → Kimi API</div>
+                                    <div class="agent-node-status">等待执行</div>
+                                </div>
+                            </div>
+                            <div class="agent-pipeline-line curved"></div>
+                            <div class="agent-pipeline-node" data-step="6">
+                                <div class="agent-node-index">⑥</div>
+                                <div class="agent-node-content">
+                                    <div class="agent-node-title">审核 Agent → 通义法睿 API</div>
+                                    <div class="agent-node-status">等待执行</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-sidebar-stage agent-sidebar-stage-result" id="agentSidebarResultStage" aria-hidden="true">
+                        <div class="agent-result-shell">
+                            <div class="agent-result-toolbar">
+                                <div class="agent-result-tabs" id="agentResultTabs">
+                                    <button class="agent-result-tab active" type="button" data-view="summary">生成摘要</button>
+                                    <button class="agent-result-tab" type="button" data-view="files">全部文件</button>
+                                    <button class="agent-result-tab" type="button" data-view="preview">预览</button>
+                                </div>
+                                <div class="agent-export-wrap">
+                                    <button class="agent-word-btn agent-export-trigger" id="agentExportTrigger" type="button" aria-expanded="false">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                        导出文件
+                                    </button>
+                                    <div class="agent-export-menu" id="agentExportMenu" aria-hidden="true">
+                                        <button type="button">下载 Word</button>
+                                        <button type="button">导出 PDF</button>
+                                        <button type="button">生成分享链接</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="agent-result-topbar">
+                                <div class="agent-result-chip">
+                                    <span class="agent-result-chip-dot"></span>
+                                    回答已生成
+                                </div>
+                                <div class="agent-result-meta-inline">已整理为可交付法律结果包</div>
+                            </div>
+
+                            <div class="agent-result-preview-card">
+                                <div class="agent-result-preview-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <line x1="10" y1="9" x2="8" y2="9"></line>
+                                    </svg>
+                                </div>
+                                <div class="agent-result-preview-meta">
+                                    <strong>已为你生成法律问题结果包</strong>
+                                    <span>可预览、导出并继续补充材料</span>
+                                </div>
+                            </div>
+
+                            <div class="agent-result-body">
+                                <div class="agent-result-outline" id="agentResultOutline">
+                                    <button class="agent-outline-item active" type="button" data-target="analysis" data-mode="comprehensive">
+                                        <span class="agent-outline-index">01</span>
+                                        <span>综合建议</span>
+                                        <div class="agent-outline-progress">
+                                            <div class="agent-outline-progress-bar" data-progress="0"></div>
+                                        </div>
+                                    </button>
+                                    <button class="agent-outline-item" type="button" data-target="basis" data-mode="legal-basis">
+                                        <span class="agent-outline-index">02</span>
+                                        <span>法律依据</span>
+                                        <div class="agent-outline-progress">
+                                            <div class="agent-outline-progress-bar" data-progress="0"></div>
+                                        </div>
+                                    </button>
+                                    <button class="agent-outline-item" type="button" data-target="strategy" data-mode="strategy">
+                                        <span class="agent-outline-index">03</span>
+                                        <span>应对策略</span>
+                                        <div class="agent-outline-progress">
+                                            <div class="agent-outline-progress-bar" data-progress="0"></div>
+                                        </div>
+                                    </button>
+                                    <button class="agent-outline-item" type="button" data-target="risk" data-mode="risk">
+                                        <span class="agent-outline-index">04</span>
+                                        <span>风险提示</span>
+                                        <div class="agent-outline-progress">
+                                            <div class="agent-outline-progress-bar" data-progress="0"></div>
+                                        </div>
+                                    </button>
+                                    <button class="agent-outline-item" type="button" data-target="case" data-mode="case">
+                                        <span class="agent-outline-index">05</span>
+                                        <span>参考案例</span>
+                                        <div class="agent-outline-progress">
+                                            <div class="agent-outline-progress-bar" data-progress="0"></div>
+                                        </div>
+                                    </button>
+                                    <button class="agent-outline-item" type="button" data-target="document" data-mode="document">
+                                        <span class="agent-outline-index">06</span>
+                                        <span>法律文书</span>
+                                        <div class="agent-outline-progress">
+                                            <div class="agent-outline-progress-bar" data-progress="0"></div>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <div class="agent-result-grid">
+                                    <section class="agent-result-card primary active" data-section="analysis">
+                                        <div class="agent-result-card-head">
+                                            <span class="agent-result-icon">⚖</span>
+                                            <div>
+                                                <h4>综合建议</h4>
+                                                <p>梳理事实脉络与争议焦点</p>
+                                            </div>
+                                        </div>
+                                        <div class="agent-result-lines">
+                                            <span></span><span></span><span class="short"></span>
+                                        </div>
+                                    </section>
+
+                                    <section class="agent-result-card" data-section="basis">
+                                        <div class="agent-result-card-head">
+                                            <span class="agent-result-icon">§</span>
+                                            <div>
+                                                <h4>法律依据</h4>
+                                                <p>关联法条、司法解释与适用方向</p>
+                                            </div>
+                                        </div>
+                                        <div class="agent-result-lines">
+                                            <span></span><span class="short"></span>
+                                        </div>
+                                    </section>
+
+                                    <section class="agent-result-card" data-section="strategy">
+                                        <div class="agent-result-card-head">
+                                            <span class="agent-result-icon">↗</span>
+                                            <div>
+                                                <h4>应对策略</h4>
+                                                <p>给出沟通、取证、程序推进建议</p>
+                                            </div>
+                                        </div>
+                                        <div class="agent-result-lines">
+                                            <span></span><span></span><span class="short"></span>
+                                        </div>
+                                    </section>
+
+                                    <section class="agent-result-card warning" data-section="risk">
+                                        <div class="agent-result-card-head">
+                                            <span class="agent-result-icon">!</span>
+                                            <div>
+                                                <h4>风险提示</h4>
+                                                <p>标注关键时效、举证与败诉风险</p>
+                                            </div>
+                                        </div>
+                                        <div class="agent-result-lines">
+                                            <span></span><span class="short"></span>
+                                        </div>
+                                    </section>
+
+                                    <section class="agent-result-card" data-section="case">
+                                        <div class="agent-result-card-head">
+                                            <span class="agent-result-icon">⌘</span>
+                                            <div>
+                                                <h4>参考案例</h4>
+                                                <p>匹配相近裁判思路与结果参考</p>
+                                            </div>
+                                        </div>
+                                        <div class="agent-result-lines">
+                                            <span></span><span></span>
+                                        </div>
+                                    </section>
+
+                                    <section class="agent-result-card doc" data-section="document">
+                                        <div class="agent-result-card-head">
+                                            <span class="agent-result-icon">W</span>
+                                            <div>
+                                                <h4>法律文书</h4>
+                                                <p>支持生成正式文书与一键导出</p>
+                                            </div>
+                                        </div>
+                                        <div class="agent-result-doc-actions">
+                                            <button type="button">预览文书</button>
+                                            <button type="button">下载草稿</button>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </aside>
         </div>
-    </section>
+    </div>
 
-    <!-- CTA Section -->
-    <section class="cta" id="cta">
-        <div class="container">
-            <h2>让法律服务，触手可及</h2>
-            <p>塞上法桥——你的温柔法律助手。AI即时响应，律师专业背书，9.9元起获得高质量法律支持。</p>
-            <div class="hero-cta" style="justify-content: center;">
-                <a href="https://ebybng6ezk6lo.ok.kimi.link" class="btn-primary" target="_blank">立即体验平台</a>
-                <a href="https://2e5xyizwharaa.ok.kimi.link" class="btn-outline" target="_blank">了解更多</a>
-            </div>
-        </div>
-    </section>
+    <!-- 左下角固定按钮组 -->
+    <div class="fixed-buttons-group">
+        <!-- 法律智能体发送按钮（仅在法律智能体模式下显示） -->
+        <button class="agent-send-btn-fixed" id="agentSendBtnFixed" title="发送消息" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 19V5M5 12L12 5L19 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-logo">塞上法桥</div>
-            <p>
-                塞上法桥 · 双核普惠智法平台<br>
-                宁夏大学大学生创新创业训练计划项目<br>
-                开发团队：李穆罕大创团队 | 开发公司：宁夏网特校园科技有限公司<br>
-                联系邮箱：1538100520@qq.com | 电话/微信：15764888330<br>
-                © 2026 塞上法桥 All Rights Reserved
-            </p>
-        </div>
-    </footer>
+    </div>
 
-    <script>
-        // ===== LOADING SCREEN =====
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                // Trigger hero animations after loading
-                setTimeout(() => {
-                    document.querySelectorAll('.hero-badge, .hero-title, .hero-subtitle, .hero-cta, .hero-scroll').forEach(el => {
-                        el.classList.add('visible');
-                    });
-                }, 500);
-            }, 2500);
-        });
+    <div class="input-footer-note" aria-label="网站信息">
+        <span>网站版本号 V3.2</span>
+        <span class="input-footer-divider">|</span>
+        <span>开发团队：李穆罕大创团队</span>
+        <span class="input-footer-divider">|</span>
+        <span>开发公司：宁夏网特校园科技有限公司</span>
+    </div>
 
-        // ===== PARTICLES =====
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                container.appendChild(particle);
-            }
-        }
-        createParticles();
-
-        // ===== NAV SCROLL EFFECT =====
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('nav');
-            if (window.scrollY > 100) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
-            }
-        });
-
-        // ===== INTERSECTION OBSERVER FOR ANIMATIONS =====
-        const observerOptions = {
-            threshold: 0.2,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        // Observe all animated elements
-        document.querySelectorAll('.timeline-item, .agent-step, .feature-card, .stat-item, .team-card, .partner-item').forEach(el => {
-            observer.observe(el);
-        });
-
-        // ===== SMOOTH SCROLL FOR NAV LINKS =====
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // ===== STAT NUMBER ANIMATION =====
-        function animateNumbers() {
-            const statNumbers = document.querySelectorAll('.stat-number');
-            const statsSection = document.getElementById('stats');
-            
-            const statsObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        statNumbers.forEach(num => {
-                            const finalValue = num.textContent;
-                            const isPercentage = finalValue.includes('%');
-                            const hasPlus = finalValue.includes('+');
-                            const numericValue = parseFloat(finalValue.replace(/[^0-9.]/g, ''));
-                            
-                            let current = 0;
-                            const increment = numericValue / 60;
-                            const timer = setInterval(() => {
-                                current += increment;
-                                if (current >= numericValue) {
-                                    current = numericValue;
-                                    clearInterval(timer);
-                                }
-                                
-                                if (isPercentage) {
-                                    num.textContent = Math.round(current) + '%';
-                                } else if (hasPlus) {
-                                    num.textContent = Math.round(current) + '+';
-                                } else if (numericValue < 10) {
-                                    num.textContent = current.toFixed(1);
-                                } else {
-                                    num.textContent = Math.round(current);
-                                }
-                            }, 25);
-                        });
-                        statsObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.5 });
-            
-            statsObserver.observe(statsSection);
-        }
-        animateNumbers();
-    </script>
+    <script src="kimiLegalDocument.js"></script>
+    <script src="deliLegalBasis.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
